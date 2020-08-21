@@ -3,7 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.1209
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsultorioApi.Web", "ConsultorioApi\ConsultorioApi.Web.csproj", "{ACED4691-1643-4469-8981-02831F891DB8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsultorioApi.Web", "ConsultorioApi.Web\ConsultorioApi.Web.csproj", "{ACED4691-1643-4469-8981-02831F891DB8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{352E573F-0861-46A8-A5BB-B512986C5F4F} = {352E573F-0861-46A8-A5BB-B512986C5F4F}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsultorioApi.Entities", "ConsultorioApi.Entities\ConsultorioApi.Entities.csproj", "{352E573F-0861-46A8-A5BB-B512986C5F4F}"
 EndProject

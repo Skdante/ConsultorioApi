@@ -1,4 +1,4 @@
-﻿namespace ConsultorioApi.Web.Swagger
+﻿namespace ConsultorioApi.Entities
 {
     public class SwaggerConfiguration
     {
