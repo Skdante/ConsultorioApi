@@ -14,7 +14,6 @@ namespace ConsultorioApi.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
         {
-            string prueba;
             return new string[] { "value1", "value2" };
         }
 
