@@ -4,4 +4,9 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ConsultorioApi.DataAccess\ConsultorioApi.DataAccess.csproj" />
+    <ProjectReference Include="..\ConsultorioApi.Entities\ConsultorioApi.Entities.csproj" />
+  </ItemGroup>
+
 </Project>

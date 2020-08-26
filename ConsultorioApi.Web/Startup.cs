@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using ConsultorioApi.Core;
 using ConsultorioApi.DataAccess;
 using ConsultorioApi.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -56,9 +57,10 @@ namespace ConsultorioApi
                     };
                 });
 
+            SetTransient(services);
+
             // Register the Swagger generator, defining one or more Swagger documents
             AddSwagger(services);
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -80,6 +82,14 @@ namespace ConsultorioApi
 
             app.UseAuthentication();
             app.UseMvc();
+        }
+
+        private void SetTransient(IServiceCollection services)
+        {
+            services.AddSingleton<IConnectionFactory, ConnectionFactory>(_ => new ConnectionFactory(Configuration.GetConnectionString("defaultConnection")));
+            services.AddSingleton<IBaseRepository, BaseRepository>();
+            services.AddScoped<ICompaniaReporitorio, CompaniaReporitorio>();
+            services.AddScoped<ICompania, Compania>();
         }
 
         private void AddSwagger(IServiceCollection services)
