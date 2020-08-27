@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using ConsultorioApi.Core;
 using ConsultorioApi.DataAccess;
@@ -14,11 +15,19 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace ConsultorioApi
 {
+    /// <summary>
+    /// Clase Startup
+    /// </summary>
     public class Startup
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="configuration"></param>
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -26,7 +35,10 @@ namespace ConsultorioApi
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to add services to the container.
+        /// </summary>
+        /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
             // Creamos la conexion a base de datos
@@ -63,7 +75,11 @@ namespace ConsultorioApi
             AddSwagger(services);
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="env"></param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             // Enable middleware to serve generated Swagger as a JSON endpoint.
@@ -73,6 +89,7 @@ namespace ConsultorioApi
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint(SwaggerConfiguration.EndpointUrl, SwaggerConfiguration.EndpointDescription);
+                c.DocExpansion(DocExpansion.None);
             });
 
             if (env.IsDevelopment())
@@ -103,6 +120,7 @@ namespace ConsultorioApi
 
             services.AddSwaggerGen(swagger =>
             {
+                swagger.EnableAnnotations();
                 // Agrega el control de seguridad y la descripcion de esta
                 swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -140,7 +158,9 @@ namespace ConsultorioApi
                         Description = SwaggerConfiguration.DocInfoDescription,
                         Contact = contact
                     }
-                    );
+                );
+                var filePath = Path.Combine(AppContext.BaseDirectory, "ConsultorioApi.Web.xml");
+                swagger.IncludeXmlComments(filePath);
             });
         }
 

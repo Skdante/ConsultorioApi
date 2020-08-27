@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ConsultorioApi.Entities
+﻿namespace ConsultorioApi.Entities
 {
     /// <summary>
     /// Clase Compañia para los insert

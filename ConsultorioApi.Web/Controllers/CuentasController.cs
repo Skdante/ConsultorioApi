@@ -9,17 +9,29 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ConsultorioApi.Web.Controllers
 {
+    /// <summary>
+    /// Clase relacionado a los accesos del api
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
+    [SwaggerTag("Clase relacionado a los accesos del api")]
     public class CuentasController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userManager"></param>
+        /// <param name="signInManager"></param>
+        /// <param name="configuration"></param>
         public CuentasController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
@@ -30,6 +42,11 @@ namespace ConsultorioApi.Web.Controllers
             _configuration = configuration;
         }
 
+        /// <summary>
+        /// Permite Crear un usuario nuevo
+        /// </summary>
+        /// <param name="model">Objeto de tipo <see cref="UserInfo"/></param>
+        /// <returns>Objeto de tipo <see cref="UserToken"/></returns>
         [HttpPost("Crear")]
         public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserInfo model)
         {
@@ -46,6 +63,11 @@ namespace ConsultorioApi.Web.Controllers
 
         }
 
+        /// <summary>
+        /// Login para obtener el token mas reciente
+        /// </summary>
+        /// <param name="userInfo">Objeto de tipo <see cref="UserInfo"/></param>
+        /// <returns>Objeto de tipo <see cref="UserToken"/></returns>
         [HttpPost("Login")]
         public async Task<ActionResult<UserToken>> Login([FromBody] UserInfo userInfo)
         {
