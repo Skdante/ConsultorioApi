@@ -1,6 +1,10 @@
 ﻿using System.Threading.Tasks;
 using ConsultorioApi.Core;
 using ConsultorioApi.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -13,17 +17,21 @@ namespace ConsultorioApi.Web.Controllers
     [ApiController]
     [Produces("application/json")]
     [SwaggerTag("Relacionado a la información de la empresa")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class CompaniaController : ControllerBase
     {
         private readonly ICompania companiaCore;
+        private readonly UserManager<ApplicationUser> userManager;
 
         /// <summary>
         /// Controlador de COmpañia
         /// </summary>
         /// <param name="_companiaCore">Interfaz tipo <see cref="ICompania"/></param>
-        public CompaniaController(ICompania _companiaCore)
+        /// <param name="_userManager">Interfaz tipo <see cref="UserManager<ApplicationUser>"/></param>
+        public CompaniaController(ICompania _companiaCore, UserManager<ApplicationUser> _userManager)
         {
             companiaCore = _companiaCore;
+            userManager = _userManager;
         }
 
         /// <summary>
@@ -34,7 +42,8 @@ namespace ConsultorioApi.Web.Controllers
         [HttpPost]
         public async Task<ActionResult<StatusProcess>> Post([FromBody] CompaniaInsert compania)
         {
-            var result = await companiaCore.CompaniaInsert(compania).ConfigureAwait(false);
+            var user = await userManager.FindByEmailAsync(HttpContext.User.Identity.Name);
+            var result = await companiaCore.CompaniaInsert(compania, user.Id).ConfigureAwait(false);
             if (result != null)
                 return Ok(result);
             return StatusCode(500);

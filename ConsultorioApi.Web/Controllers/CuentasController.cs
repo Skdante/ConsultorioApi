@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Annotations;
 
+
 namespace ConsultorioApi.Web.Controllers
 {
     /// <summary>
@@ -54,7 +55,7 @@ namespace ConsultorioApi.Web.Controllers
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
-                return BuildToken(model, new List<string>());
+                return BuildToken(model, new List<string>(), model.Email);
             }
             else
             {
@@ -76,7 +77,7 @@ namespace ConsultorioApi.Web.Controllers
             {
                 var usuario = await _userManager.FindByEmailAsync(userInfo.Email);
                 var roles = await _userManager.GetRolesAsync(usuario);
-                return BuildToken(userInfo, roles);
+                return BuildToken(userInfo, roles, usuario.UserName);
             }
             else
             {
@@ -85,12 +86,12 @@ namespace ConsultorioApi.Web.Controllers
             }
         }
 
-        private UserToken BuildToken(UserInfo userInfo, IList<string> roles)
+        private UserToken BuildToken(UserInfo userInfo, IList<string> roles, string username)
         {
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.UniqueName, userInfo.Email),
-                new Claim("miValor", "Lo que yo quiera"),
+                new Claim(ClaimTypes.Name, userInfo.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

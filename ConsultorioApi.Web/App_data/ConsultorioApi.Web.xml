@@ -9,12 +9,7 @@
             Relacionado a la información de la empresa
             </summary>
         </member>
-        <member name="M:ConsultorioApi.Web.Controllers.CompaniaController.#ctor(ConsultorioApi.Core.ICompania)">
-            <summary>
-            Controlador de COmpañia
-            </summary>
-            <param name="_companiaCore">Interfaz tipo <see cref="T:ConsultorioApi.Core.ICompania"/></param>
-        </member>
+        <!-- El comentario XML con formato incorrecto se ha omitido para el miembro "M:ConsultorioApi.Web.Controllers.CompaniaController.#ctor(ConsultorioApi.Core.ICompania,Microsoft.AspNetCore.Identity.UserManager{ConsultorioApi.Entities.ApplicationUser})" -->
         <member name="M:ConsultorioApi.Web.Controllers.CompaniaController.Post(ConsultorioApi.Entities.CompaniaInsert)">
             <summary>
             Inserta la información de la compañia

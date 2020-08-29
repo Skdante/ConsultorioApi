@@ -5,6 +5,6 @@ namespace ConsultorioApi.Core
 {
     public interface ICompania
     {
-        Task<StatusProcess> CompaniaInsert(CompaniaInsert companiaInsert);
+        Task<StatusProcess> CompaniaInsert(CompaniaInsert companiaInsert, string userId);
     }
 }

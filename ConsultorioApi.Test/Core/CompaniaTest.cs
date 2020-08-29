@@ -16,18 +16,19 @@ namespace ConsultorioApi.Test
         {
             // Preparación
             Exception expectedExcepcion = null;
+            var userId = "";
             var companiaInsert = new CompaniaInsert();
             var mock = new Mock<ICompaniaReporitorio>();
             StatusProcess status = new StatusProcess();
             var statusExpected = new StatusProcess() { Estatus = true };
             var statusMock = Task.Run(() => new StatusProcessDB() { Estatus = true });
-            mock.Setup(x => x.SetCompania(companiaInsert)).Returns(statusMock);
+            mock.Setup(x => x.SetCompania(companiaInsert, userId)).Returns(statusMock);
             var compania = new Compania(mock.Object);
 
             // Prueba
             try
             {
-                status = compania.CompaniaInsert(companiaInsert).Result;
+                status = compania.CompaniaInsert(companiaInsert, userId).Result;
             }
             catch (Exception ex)
             {

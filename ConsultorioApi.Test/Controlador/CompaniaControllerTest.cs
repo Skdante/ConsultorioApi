@@ -1,12 +1,10 @@
 ﻿using ConsultorioApi.Core;
 using ConsultorioApi.Entities;
 using ConsultorioApi.Web.Controllers;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ConsultorioApi.Test.Controlador
@@ -19,10 +17,12 @@ namespace ConsultorioApi.Test.Controlador
         {
             // Preparación
             var companiaInsert = new CompaniaInsert();
+            var userId = "";
             var mock = new Mock<ICompania>();
+            var mockUser = new Mock<UserManager<ApplicationUser>>();
             var statusProcess = Task.Run(() => new StatusProcess() { Estatus = true });
-            mock.Setup(x => x.CompaniaInsert(companiaInsert)).Returns(statusProcess);
-            var companiaController = new CompaniaController(mock.Object);
+            mock.Setup(x => x.CompaniaInsert(companiaInsert, userId)).Returns(statusProcess);
+            var companiaController = new CompaniaController(mock.Object, mockUser.Object);
 
             // Prueba
             var resultado = companiaController.Post(companiaInsert).Result;
@@ -37,9 +37,11 @@ namespace ConsultorioApi.Test.Controlador
         {
             // Preparación
             var companiaInsert = new CompaniaInsert();
+            var userId = "";
             var mock = new Mock<ICompania>();
-            mock.Setup(x => x.CompaniaInsert(companiaInsert));
-            var companiaController = new CompaniaController(mock.Object);
+            var mockUser = new Mock<UserManager<ApplicationUser>>();
+            mock.Setup(x => x.CompaniaInsert(companiaInsert, userId));
+            var companiaController = new CompaniaController(mock.Object, mockUser.Object);
 
             // Prueba
             var resultado = companiaController.Post(companiaInsert).Result;

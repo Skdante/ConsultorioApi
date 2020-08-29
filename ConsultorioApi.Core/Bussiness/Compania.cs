@@ -18,10 +18,11 @@ namespace ConsultorioApi.Core
         /// Inserta la información de la compañia
         /// </summary>
         /// <param name="companiaInsert">Modelo de Objeto tipo <see cref="CompaniaInsert"/></param>
+        /// <param name="userId">Id del usuario</param>
         /// <returns>Modelo de Objeto tipo <see cref="StatusProcess"/></returns>
-        public async Task<StatusProcess> CompaniaInsert(CompaniaInsert companiaInsert)
+        public async Task<StatusProcess> CompaniaInsert(CompaniaInsert companiaInsert, string userId)
         {
-            return await companiaRepositorio.SetCompania(companiaInsert);
+            return await companiaRepositorio.SetCompania(companiaInsert, userId);
         }
     }
 }

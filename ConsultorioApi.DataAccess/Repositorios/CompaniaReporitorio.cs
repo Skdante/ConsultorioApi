@@ -17,8 +17,9 @@ namespace ConsultorioApi.DataAccess
         /// Inserta la información para una nueva compañia
         /// </summary>
         /// <param name="companiaInsert">Modelo con la información de la compañia</param>
+        /// <param name="userId">Id del Usuario</param>
         /// <returns>Estatus del proceso <see cref="StatusProcessDB"/></returns>
-        public async Task<StatusProcessDB> SetCompania(CompaniaInsert companiaInsert)
+        public async Task<StatusProcessDB> SetCompania(CompaniaInsert companiaInsert, string userId)
         {
             var compania = JsonConvert.SerializeObject(companiaInsert);
 
@@ -26,6 +27,7 @@ namespace ConsultorioApi.DataAccess
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@companiaData", compania, DbType.String, ParameterDirection.Input);
+                parameters.Add("@userId", userId, DbType.String, ParameterDirection.Input);
 
                 var records = await query.QueryMultipleAsync(
                     sql: "CompaniaInsert"
