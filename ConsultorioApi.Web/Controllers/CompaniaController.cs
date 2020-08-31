@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using ConsultorioApi.Core;
 using ConsultorioApi.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -35,7 +36,7 @@ namespace ConsultorioApi.Web.Controllers
         }
 
         /// <summary>
-        /// Inserta la información de la compañia
+        /// Inserta la información de la empresa
         /// </summary>
         /// <param name="compania">Modelo de Objeto Tipo <see cref="CompaniaInsert"/></param>
         /// <returns>Devuelve un objeto tipo <see cref="StatusProcess"/></returns>
@@ -44,6 +45,19 @@ namespace ConsultorioApi.Web.Controllers
         {
             var user = await userManager.FindByEmailAsync(HttpContext.User.Identity.Name);
             var result = await companiaCore.CompaniaInsert(compania, user.Id).ConfigureAwait(false);
+            if (result != null)
+                return Ok(result);
+            return StatusCode(500);
+        }
+
+        /// <summary>
+        /// Obtenemos un listado de las empresas
+        /// </summary>
+        /// <returns>Devuelve un objeto tipo <see cref="StatusProcess"/></returns>
+        [HttpGet]
+        public async Task<ActionResult<List<CompaniaLista>>> Get()
+        {
+            var result = await companiaCore.GetCompaniaList().ConfigureAwait(false);
             if (result != null)
                 return Ok(result);
             return StatusCode(500);

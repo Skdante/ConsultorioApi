@@ -1,4 +1,5 @@
 ﻿using ConsultorioApi.Entities;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ConsultorioApi.DataAccess
@@ -12,5 +13,11 @@ namespace ConsultorioApi.DataAccess
         /// <param name="userId">Id del Usuario</param>
         /// <returns>Estatus del proceso <see cref="StatusProcessDB"/></returns>
         Task<StatusProcessDB> SetCompania(CompaniaInsert companiaInsert, string userId);
+
+        /// <summary>
+        /// Obtenemos un listado de las empresas
+        /// </summary>
+        /// <returns>Estatus del proceso <see cref="StatusProcessDB"/></returns>
+        Task<List<CompaniaLista>> GetCompaniaList();
     }
 }

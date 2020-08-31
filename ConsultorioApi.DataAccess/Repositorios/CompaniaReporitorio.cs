@@ -4,6 +4,7 @@ using ConsultorioApi.Entities;
 using System.Data;
 using Newtonsoft.Json;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace ConsultorioApi.DataAccess
 {
@@ -34,6 +35,23 @@ namespace ConsultorioApi.DataAccess
                     , param: parameters
                     , commandType: CommandType.StoredProcedure).ConfigureAwait(false);
                 return records.Read<StatusProcessDB>().FirstOrDefault();
+            });
+        }
+
+        /// <summary>
+        /// Obtenemos la informacion de las empresas
+        /// </summary>
+        /// <returns>Lista de objetos tipo <see cref="CompaniaLista"/></returns>
+        public async Task<List<CompaniaLista>> GetCompaniaList()
+        {
+            return await WithConnection(async query =>
+            {
+                var parameters = new DynamicParameters();
+                var records = await query.QueryMultipleAsync(
+                    sql: "CompaniaList"
+                    , param: parameters
+                    , commandType: CommandType.StoredProcedure).ConfigureAwait(false);
+                return records.Read<CompaniaLista>().ToList();
             });
         }
     }

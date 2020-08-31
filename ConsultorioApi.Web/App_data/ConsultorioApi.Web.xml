@@ -12,9 +12,15 @@
         <!-- El comentario XML con formato incorrecto se ha omitido para el miembro "M:ConsultorioApi.Web.Controllers.CompaniaController.#ctor(ConsultorioApi.Core.ICompania,Microsoft.AspNetCore.Identity.UserManager{ConsultorioApi.Entities.ApplicationUser})" -->
         <member name="M:ConsultorioApi.Web.Controllers.CompaniaController.Post(ConsultorioApi.Entities.CompaniaInsert)">
             <summary>
-            Inserta la información de la compañia
+            Inserta la información de la empresa
             </summary>
             <param name="compania">Modelo de Objeto Tipo <see cref="T:ConsultorioApi.Entities.CompaniaInsert"/></param>
+            <returns>Devuelve un objeto tipo <see cref="T:ConsultorioApi.Entities.StatusProcess"/></returns>
+        </member>
+        <member name="M:ConsultorioApi.Web.Controllers.CompaniaController.Get">
+            <summary>
+            Obtenemos un listado de las empresas
+            </summary>
             <returns>Devuelve un objeto tipo <see cref="T:ConsultorioApi.Entities.StatusProcess"/></returns>
         </member>
         <member name="T:ConsultorioApi.Web.Controllers.CuentasController">
