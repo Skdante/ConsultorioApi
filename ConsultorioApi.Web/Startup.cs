@@ -46,6 +46,7 @@ namespace ConsultorioApi
             {
                 options.AddDefaultPolicy(policy =>
                     policy.WithOrigins(new[] { "http://localhost:52510" })
+                    .AllowAnyMethod()
                     .AllowAnyHeader()
                     .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization, "x-custom-header")
                     .AllowCredentials());

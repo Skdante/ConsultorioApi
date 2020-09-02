@@ -25,7 +25,7 @@ namespace ConsultorioApi.Web.Controllers
         private readonly UserManager<ApplicationUser> userManager;
 
         /// <summary>
-        /// Controlador de COmpañia
+        /// Controlador de Compañia
         /// </summary>
         /// <param name="_companiaCore">Interfaz tipo <see cref="ICompania"/></param>
         /// <param name="_userManager">Interfaz tipo <see cref="UserManager<ApplicationUser>"/></param>
@@ -53,11 +53,43 @@ namespace ConsultorioApi.Web.Controllers
         /// <summary>
         /// Obtenemos un listado de las empresas
         /// </summary>
+        /// <param name="companiaFiltro">Modelo de Objeto Tipo <see cref="CompaniaFiltro"/></param>
         /// <returns>Devuelve un objeto tipo <see cref="StatusProcess"/></returns>
-        [HttpGet]
-        public async Task<ActionResult<List<CompaniaLista>>> Get()
+        [HttpPost("Consultar")]
+        public async Task<ActionResult<List<CompaniaLista>>> Post([FromBody] CompaniaFiltro companiaFiltro)
         {
-            var result = await companiaCore.GetCompaniaList().ConfigureAwait(false);
+            var result = await companiaCore.GetCompaniaList(companiaFiltro).ConfigureAwait(false);
+            if (result != null)
+                return Ok(result);
+            return StatusCode(500);
+        }
+
+        /// <summary>
+        /// Editamos la informacion de una empresa
+        /// </summary>
+        /// <param name="companiaEditar">Modelo de Objeto Tipo <see cref="CompaniaEditar"/></param>
+        /// <returns>Devuelve un objeto tipo <see cref="StatusProcess"/></returns>
+        [HttpPut("Editar")]
+        public async Task<ActionResult<StatusProcess>> Put([FromBody] CompaniaEditar companiaEditar)
+        {
+            var user = await userManager.FindByEmailAsync(HttpContext.User.Identity.Name);
+            var result = await companiaCore.GetCompaniaEdit(companiaEditar, user.Id).ConfigureAwait(false);
+            if (result != null)
+                return Ok(result);
+            return StatusCode(500);
+        }
+
+        /// <summary>
+        /// Habilitamos o inhabilitamos la empresa
+        /// </summary>
+        /// <param name="id">Id de la empresa a inhabilitar</param>
+        /// <param name="activo">Activa o desactiva la empresa</param>
+        /// <returns>Devuelve un objeto tipo <see cref="StatusProcess"/></returns>
+        [HttpPatch("Inhabilitar")]
+        public async Task<ActionResult<StatusProcess>> Fetch(int id, bool activo)
+        {
+            var user = await userManager.FindByEmailAsync(HttpContext.User.Identity.Name);
+            var result = await companiaCore.FetchCompaniaInhabilitar(id, activo, user.Id).ConfigureAwait(false);
             if (result != null)
                 return Ok(result);
             return StatusCode(500);
