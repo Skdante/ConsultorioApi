@@ -53,6 +53,7 @@ namespace ConsultorioApi.DataAccess
                 parameters.Add("@pais", companiaFiltro.Pais, DbType.String, ParameterDirection.Input);
                 parameters.Add("@estado", companiaFiltro.Estado, DbType.String, ParameterDirection.Input);
                 parameters.Add("@colonia", companiaFiltro.Colonia, DbType.String, ParameterDirection.Input);
+                parameters.Add("@activo", companiaFiltro.Activos, DbType.Int16, ParameterDirection.Input);
 
                 var records = await query.QueryMultipleAsync(
                     sql: "CompaniaList"

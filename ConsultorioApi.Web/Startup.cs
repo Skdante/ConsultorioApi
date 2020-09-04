@@ -48,6 +48,7 @@ namespace ConsultorioApi
                     policy.WithOrigins(new[] { "http://localhost:52510" })
                     .AllowAnyMethod()
                     .AllowAnyHeader()
+                    .WithExposedHeaders("conteo", "totalPaginas")
                     .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization, "x-custom-header")
                     .AllowCredentials());
             });

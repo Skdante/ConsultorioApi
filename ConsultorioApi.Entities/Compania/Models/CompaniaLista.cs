@@ -37,5 +37,9 @@
         /// Numero interior
         /// </summary>
         public string Numero_interior { get; set; }
+        /// <summary>
+        /// Indica si esta activo o no
+        /// </summary>
+        public bool Activo { get; set; }
     }
 }

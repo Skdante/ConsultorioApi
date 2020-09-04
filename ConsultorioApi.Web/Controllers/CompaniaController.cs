@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ConsultorioApi.Core;
 using ConsultorioApi.Entities;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace ConsultorioApi.Web.Controllers
@@ -58,9 +60,14 @@ namespace ConsultorioApi.Web.Controllers
         [HttpPost("Consultar")]
         public async Task<ActionResult<List<CompaniaLista>>> Post([FromBody] CompaniaFiltro companiaFiltro)
         {
-            var result = await companiaCore.GetCompaniaList(companiaFiltro).ConfigureAwait(false);
+            var result = await companiaCore.GetCompaniaList(companiaFiltro);
             if (result != null)
+            {
+                var quaryable = result.AsQueryable();
+                await HttpContext.InsertaParametrosPaginacionEnRespuesta(quaryable, companiaFiltro.Paginacion.CantidadRegistros);
+                result = quaryable.Paginar(companiaFiltro.Paginacion).ToList();
                 return Ok(result);
+            }
             return StatusCode(500);
         }
 

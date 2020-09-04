@@ -1,5 +1,8 @@
 ﻿namespace ConsultorioApi.Entities
 {
+    /// <summary>
+    /// Clase de Filtros de la Empresa
+    /// </summary>
     public class CompaniaFiltro
     {
         /// <summary>
@@ -22,5 +25,20 @@
         /// Colonia
         /// </summary>
         public string Colonia { get; set; }
+        /// <summary>
+        /// Activos
+        /// </summary>
+        public int Activos { get; set; }
+        /// <summary>
+        /// Total de Registros a consultar
+        /// </summary>
+        public Paginacion Paginacion {get; set;}
+        /// <summary>
+        /// Constructor de la clase
+        /// </summary>
+        public CompaniaFiltro()
+        {
+            Paginacion = new Paginacion();
+        }
     }
 }

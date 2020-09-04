@@ -66,6 +66,35 @@
             <param name="userInfo">Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserInfo"/></param>
             <returns>Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserToken"/></returns>
         </member>
+        <member name="T:ConsultorioApi.Web.HttpContextExtensions">
+            <summary>
+            Extención de la clase HttpContext
+            </summary>
+        </member>
+        <member name="M:ConsultorioApi.Web.HttpContextExtensions.InsertaParametrosPaginacionEnRespuesta``1(Microsoft.AspNetCore.Http.HttpContext,System.Linq.IQueryable{``0},System.Int32)">
+            <summary>
+            Insertar los parametros de la paginación
+            </summary>
+            <typeparam name="t">Cualquier Objeto</typeparam>
+            <param name="context">Objeto tipo <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/></param>
+            <param name="queryable">Objeto tipo <see cref="T:System.Linq.IQueryable"/></param>
+            <param name="cantidadRegistrosMostrar">cantidad de objetos</param>
+            <returns></returns>
+        </member>
+        <member name="T:ConsultorioApi.Web.QueryableExtensions">
+            <summary>
+            Clase para mostrar una paginación de registros
+            </summary>
+        </member>
+        <member name="M:ConsultorioApi.Web.QueryableExtensions.Paginar``1(System.Linq.IQueryable{``0},ConsultorioApi.Entities.Paginacion)">
+            <summary>
+            Metodo para devolver la cantidad total de registros
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="queryable"></param>
+            <param name="paginacion"></param>
+            <returns></returns>
+        </member>
         <member name="T:ConsultorioApi.Startup">
             <summary>
             Clase Startup
