@@ -66,6 +66,13 @@
             <param name="userInfo">Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserInfo"/></param>
             <returns>Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserToken"/></returns>
         </member>
+        <member name="M:ConsultorioApi.Web.Controllers.CuentasController.BuildToken(ConsultorioApi.Entities.UserInfo,System.Collections.Generic.IList{System.String},System.String)">
+            <summary>
+            Login para obtener el token mas reciente
+            </summary>
+            <param name="userInfo">Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserInfo"/></param>
+            <returns>Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserToken"/></returns>
+        </member>
         <member name="T:ConsultorioApi.Web.HttpContextExtensions">
             <summary>
             Extención de la clase HttpContext

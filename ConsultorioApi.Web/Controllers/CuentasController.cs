@@ -51,7 +51,7 @@ namespace ConsultorioApi.Web.Controllers
         [HttpPost("Crear")]
         public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserInfo model)
         {
-            var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+            var user = new ApplicationUser { UserName = model.Email, Email = model.Email, IsEnabled = true };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
@@ -85,6 +85,28 @@ namespace ConsultorioApi.Web.Controllers
                 return BadRequest(ModelState);
             }
         }
+
+        /// <summary>
+        /// Login para obtener el token mas reciente
+        /// </summary>
+        /// <param name="userInfo">Objeto de tipo <see cref="UserInfo"/></param>
+        /// <returns>Objeto de tipo <see cref="UserToken"/></returns>
+        //[HttpPost("UsersList")]
+        //public async Task<ActionResult<UserToken>> Post([FromBody] UserInfo userInfo)
+        //{
+        //    var result = _userManager.Users;
+        //    if (result.Succeeded)
+        //    {
+        //        var usuario = await _userManager.FindByEmailAsync(userInfo.Email);
+        //        var roles = await _userManager.GetRolesAsync(usuario);
+        //        return BuildToken(userInfo, roles, usuario.UserName);
+        //    }
+        //    else
+        //    {
+        //        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+        //        return BadRequest(ModelState);
+        //    }
+        //}
 
         private UserToken BuildToken(UserInfo userInfo, IList<string> roles, string username)
         {

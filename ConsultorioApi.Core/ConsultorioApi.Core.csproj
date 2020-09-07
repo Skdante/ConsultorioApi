@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0" />
+    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="5.5.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ConsultorioApi.DataAccess\ConsultorioApi.DataAccess.csproj" />
     <ProjectReference Include="..\ConsultorioApi.Entities\ConsultorioApi.Entities.csproj" />
   </ItemGroup>
