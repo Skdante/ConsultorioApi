@@ -46,7 +46,7 @@
         </member>
         <member name="M:ConsultorioApi.Web.Controllers.CuentasController.#ctor(Microsoft.AspNetCore.Identity.UserManager{ConsultorioApi.Entities.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{ConsultorioApi.Entities.ApplicationUser},Microsoft.Extensions.Configuration.IConfiguration)">
             <summary>
-            
+            Controlador de Cuentas
             </summary>
             <param name="userManager"></param>
             <param name="signInManager"></param>
@@ -59,18 +59,18 @@
             <param name="model">Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserInfo"/></param>
             <returns>Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserToken"/></returns>
         </member>
-        <member name="M:ConsultorioApi.Web.Controllers.CuentasController.Login(ConsultorioApi.Entities.UserInfo)">
+        <member name="M:ConsultorioApi.Web.Controllers.CuentasController.Login(ConsultorioApi.Entities.UserAccess)">
             <summary>
             Login para obtener el token mas reciente
             </summary>
-            <param name="userInfo">Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserInfo"/></param>
+            <param name="userInfo">Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserAccess"/></param>
             <returns>Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserToken"/></returns>
         </member>
-        <member name="M:ConsultorioApi.Web.Controllers.CuentasController.BuildToken(ConsultorioApi.Entities.UserInfo,System.Collections.Generic.IList{System.String},System.String)">
+        <member name="M:ConsultorioApi.Web.Controllers.CuentasController.UserList(ConsultorioApi.Entities.UserFiltro)">
             <summary>
-            Login para obtener el token mas reciente
+            Muestra el listado de Usuarios de Accesos
             </summary>
-            <param name="userInfo">Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserInfo"/></param>
+            <param name="userFilter">Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserFiltro"/></param>
             <returns>Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserToken"/></returns>
         </member>
         <member name="T:ConsultorioApi.Web.HttpContextExtensions">

@@ -1,8 +1,8 @@
 ﻿namespace ConsultorioApi.Entities
 {
-    public class UserInfo
+    public class UserInfo : UserAccess
     {
-        public string Email { get; set; }
-        public string Password { get; set; }
+        public string Name { get; set; }
+        public string JobTitle { get; set; }
     }
 }
