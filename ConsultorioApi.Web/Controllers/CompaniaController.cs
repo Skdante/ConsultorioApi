@@ -30,7 +30,7 @@ namespace ConsultorioApi.Web.Controllers
         /// Controlador de Compañia
         /// </summary>
         /// <param name="_companiaCore">Interfaz tipo <see cref="ICompania"/></param>
-        /// <param name="_userManager">Interfaz tipo <see cref="UserManager<ApplicationUser>"/></param>
+        /// <param name="_userManager">Interfaz tipo UserManager</param>
         public CompaniaController(ICompania _companiaCore, UserManager<ApplicationUser> _userManager)
         {
             companiaCore = _companiaCore;

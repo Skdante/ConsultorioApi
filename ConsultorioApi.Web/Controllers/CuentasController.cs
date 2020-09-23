@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
+using ConsultorioApi.Core;
 using ConsultorioApi.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Annotations;
 
 
@@ -24,11 +21,14 @@ namespace ConsultorioApi.Web.Controllers
     [ApiController]
     [Produces("application/json")]
     [SwaggerTag("Clase relacionado a los accesos del api")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class CuentasController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly IAlmacenadorDeArchivos _almacenadorDeArchivos;
+        private readonly ICuentas _cuentas;
 
         /// <summary>
         /// Controlador de Cuentas
@@ -36,40 +36,118 @@ namespace ConsultorioApi.Web.Controllers
         /// <param name="userManager"></param>
         /// <param name="signInManager"></param>
         /// <param name="configuration"></param>
+        /// <param name="almacenadorDeArchivos"></param>
+        /// <param name="cuentas"></param>
         public CuentasController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IAlmacenadorDeArchivos almacenadorDeArchivos,
+            ICuentas cuentas)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _almacenadorDeArchivos = almacenadorDeArchivos;
+            _cuentas = cuentas;
         }
 
         /// <summary>
-        /// Permite Crear un usuario nuevo
+        /// Permite crear un usuario
         /// </summary>
         /// <param name="model">Objeto de tipo <see cref="UserInfo"/></param>
         /// <returns>Objeto de tipo <see cref="UserToken"/></returns>
         [HttpPost("Crear")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserInfo model)
         {
-            var user = new ApplicationUser {
+            if (!string.IsNullOrWhiteSpace(model.Imagen))
+            {
+                var fotoPersona = Convert.FromBase64String(model.Imagen);
+                model.Imagen = await _almacenadorDeArchivos.GuardarArchivo(fotoPersona, "jpg", "personas");
+            }
+            var user = new ApplicationUser
+            {
                 UserName = model.Email,
                 Email = model.Email,
-                IsEnabled = true,
-                Name = model.Name,
-                JobTitle = model.JobTitle
+                IsEnabled = model.Estatus,
+                Name = model.Nombre,
+                JobTitle = model.Puesto,
+                PhoneNumber = model.Telefono,
+                Imagen = model.Imagen
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
-                return BuildToken(model, new List<string>(), model.Email);
+                try
+                {
+                    var usuario = await _userManager.FindByEmailAsync(model.Email);
+                    await _userManager.AddToRoleAsync(usuario, model.RolId);
+                    await _cuentas.InsertaRelacionEmpresaCuenta(user.Id, model.EmpresasRelacionadas);
+                    return _cuentas.BuildToken(model, new List<string>(), model.Email, _configuration["JWT:key"]);
+                } 
+                catch (Exception ex)
+                {
+                    return BadRequest("Usuario creado exitosamente, pero se encontro un detalle: " + ex.Message);
+                }
             }
             else
             {
                 return BadRequest("Username or password invalid");
+            }
+
+        }
+
+        /// <summary>
+        /// Permite editar un usuario
+        /// </summary>
+        /// <param name="model">Objeto de tipo <see cref="UserInfo"/></param>
+        /// <returns>Objeto de tipo <see cref="UserToken"/></returns>
+        [HttpPut("Editar")]
+        public async Task<ActionResult<UserToken>> EditarUser([FromBody] UserInfo model)
+        {
+            if (!string.IsNullOrWhiteSpace(model.Imagen))
+            {
+                var fotoPersona = Convert.FromBase64String(model.Imagen);
+                model.Imagen = await _almacenadorDeArchivos.GuardarArchivo(fotoPersona, "jpg", "personas");
+            }
+            var usuario = await _userManager.FindByEmailAsync(model.Email);
+            usuario.IsEnabled = model.Estatus;
+            usuario.Name = model.Nombre;
+            usuario.JobTitle = model.Puesto;
+            usuario.PhoneNumber = model.Telefono;
+            usuario.Imagen = model.Imagen == "" ? null : model.Imagen;
+            
+            var result = await _userManager.UpdateAsync(usuario);
+            if (result.Succeeded)
+            {
+                try
+                {
+                    var roles = await _userManager.GetRolesAsync(usuario);
+
+                    if (!String.IsNullOrWhiteSpace(model.Password))
+                    {
+                        await _userManager.RemovePasswordAsync(usuario);
+                        await _userManager.AddPasswordAsync(usuario, model.Password);
+                    }
+
+                    if (String.IsNullOrWhiteSpace(model.RolId) && !roles.Contains(model.RolId))
+                    {
+                        await _userManager.RemoveFromRolesAsync(usuario, roles);
+                        await _userManager.AddToRoleAsync(usuario, model.RolId);
+                    }
+                    
+                    await _cuentas.InsertaRelacionEmpresaCuenta(usuario.Id, model.EmpresasRelacionadas);
+                    
+                    return _cuentas.BuildToken(model, new List<string>(), model.Email, _configuration["JWT:key"]);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest("Usuario editado exitosamente, pero se encontro un detalle: " + ex.Message);
+                }
+            }
+            else
+            {
+                return BadRequest("Error al editar el usuario");
             }
 
         }
@@ -80,6 +158,7 @@ namespace ConsultorioApi.Web.Controllers
         /// <param name="userInfo">Objeto de tipo <see cref="UserAccess"/></param>
         /// <returns>Objeto de tipo <see cref="UserToken"/></returns>
         [HttpPost("Login")]
+        [AllowAnonymous]
         public async Task<ActionResult<UserToken>> Login([FromBody] UserAccess userInfo)
         {
             UserInfo user = new UserInfo() { Email = userInfo.Email, Password = userInfo.Password};
@@ -88,7 +167,7 @@ namespace ConsultorioApi.Web.Controllers
             {
                 var usuario = await _userManager.FindByEmailAsync(userInfo.Email);
                 var roles = await _userManager.GetRolesAsync(usuario);
-                return BuildToken(user, roles, usuario.UserName);
+                return _cuentas.BuildToken(user, roles, usuario.UserName, _configuration["JWT:key"]);
             }
             else
             {
@@ -103,78 +182,40 @@ namespace ConsultorioApi.Web.Controllers
         /// <param name="userFilter">Objeto de tipo <see cref="UserFiltro"/></param>
         /// <returns>Objeto de tipo <see cref="UserToken"/></returns>
         [HttpPost("UsersList")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<UserList>> UserList([FromBody] UserFiltro userFilter)
         {
-            var result = FilterUser(_userManager.Users, userFilter);
+            var result = _cuentas.FilterUser(_userManager.Users, userFilter);
             if (result.Count() > 0)
                 return Ok(result);
             else
                 return NoContent();
         }
 
-        private UserToken BuildToken(UserInfo userInfo, IList<string> roles, string username)
+        /// <summary>
+        /// Muestra información del usuario
+        /// </summary>
+        /// <param name="id">Identificador del Usuario</param>
+        /// <returns>Objeto de tipo <see cref="UserToken"/></returns>
+        [HttpGet("User")]
+        [AllowAnonymous]
+        public async Task<ActionResult<UserList>> GetUser(string id)
         {
-            var claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.UniqueName, userInfo.Email),
-                new Claim(ClaimTypes.Name, userInfo.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
-
-            foreach (var rol in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, rol));
-            }
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            // Tiempo de expiración del token. En nuestro caso lo hacemos de una año.
-            var expiration = DateTime.UtcNow.AddYears(1);
-
-            JwtSecurityToken token = new JwtSecurityToken(
-               issuer: null,
-               audience: null,
-               claims: claims,
-               expires: expiration,
-               signingCredentials: creds);
-
-            return new UserToken()
-            {
-                Token = new JwtSecurityTokenHandler().WriteToken(token),
-                Expiration = expiration
-            };
+            var result = await _cuentas.User(id);
+            return Ok(result);
         }
 
-        private List<UserList> FilterUser(IQueryable<ApplicationUser> applicationUsers, UserFiltro userFilter)
+        /// <summary>
+        /// Muestra el listado de los Roles
+        /// </summary>
+        /// <returns>Listado de objetos tipo <see cref="UserList"/></returns>
+        [HttpGet("RolList")]
+        public async Task<ActionResult<RolList>> RolList()
         {
-            List<UserList> userList = new List<UserList>();
-            applicationUsers = applicationUsers.Where(x => x.Name.Contains(userFilter.Name));
-            applicationUsers = applicationUsers.Where(x => x.Email.Contains(userFilter.Email));
-
-            if (userFilter.EstatusId != 2 && userFilter.EstatusId == 1) {
-                applicationUsers = applicationUsers.Where(x => x.IsEnabled == true);
-            } else if (userFilter.EstatusId != 2 && userFilter.EstatusId == 0)
-            {
-                applicationUsers = applicationUsers.Where(x => x.IsEnabled == false);
-            }
-
-            foreach (var user in applicationUsers)
-            {
-                UserList userOnly = new UserList()
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    JobTitle = user.JobTitle,
-                    IsEnabled = user.IsEnabled,
-                    UserName = user.UserName,
-                    PhoneNumber = user.PhoneNumber
-                };
-
-                userList.Add(userOnly);
-            }
-            return userList;
+            var result = await _cuentas.GetRol();
+            if (result.Count() > 0)
+                return Ok(result);
+            else
+                return NoContent();
         }
     }
 }

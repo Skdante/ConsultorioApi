@@ -17,6 +17,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
+using Microsoft.Extensions.Hosting;
+using ConsultorioApi.Web;
 
 namespace ConsultorioApi
 {
@@ -34,6 +36,9 @@ namespace ConsultorioApi
             Configuration = configuration;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public IConfiguration Configuration { get; }
 
         /// <summary>
@@ -62,7 +67,7 @@ namespace ConsultorioApi
                 .AddEntityFrameworkStores<ApplicationDBContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc(option => option.EnableEndpointRouting=false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             // CONFIGURACIÓN DEL SERVICIO DE AUTENTICACIÓN JWT
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -82,6 +87,7 @@ namespace ConsultorioApi
                 });
 
             SetTransient(services);
+            services.AddHttpContextAccessor();
 
             // Register the Swagger generator, defining one or more Swagger documents
             AddSwagger(services);
@@ -92,7 +98,7 @@ namespace ConsultorioApi
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
@@ -120,6 +126,9 @@ namespace ConsultorioApi
             services.AddSingleton<IBaseRepository, BaseRepository>();
             services.AddScoped<ICompaniaReporitorio, CompaniaReporitorio>();
             services.AddScoped<ICompania, Compania>();
+            services.AddScoped<ICuentasRepositorio, CuentasRepositorio>();
+            services.AddScoped<ICuentas, Cuentas>();
+            services.AddScoped<IAlmacenadorDeArchivos, AlmacenadorArchivosLocal>();
         }
 
         private void AddSwagger(IServiceCollection services)

@@ -7,5 +7,6 @@ namespace ConsultorioApi.Entities
         public bool? IsEnabled { get; set; }
         public string Name { get; set; }
         public string JobTitle { get; set; }
+        public string Imagen { get; set; }
     }
 }

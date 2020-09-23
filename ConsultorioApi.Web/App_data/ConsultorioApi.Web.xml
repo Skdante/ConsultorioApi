@@ -9,7 +9,13 @@
             Relacionado a la información de la empresa
             </summary>
         </member>
-        <!-- El comentario XML con formato incorrecto se ha omitido para el miembro "M:ConsultorioApi.Web.Controllers.CompaniaController.#ctor(ConsultorioApi.Core.ICompania,Microsoft.AspNetCore.Identity.UserManager{ConsultorioApi.Entities.ApplicationUser})" -->
+        <member name="M:ConsultorioApi.Web.Controllers.CompaniaController.#ctor(ConsultorioApi.Core.ICompania,Microsoft.AspNetCore.Identity.UserManager{ConsultorioApi.Entities.ApplicationUser})">
+            <summary>
+            Controlador de Compañia
+            </summary>
+            <param name="_companiaCore">Interfaz tipo <see cref="T:ConsultorioApi.Core.ICompania"/></param>
+            <param name="_userManager">Interfaz tipo UserManager</param>
+        </member>
         <member name="M:ConsultorioApi.Web.Controllers.CompaniaController.Post(ConsultorioApi.Entities.CompaniaInsert)">
             <summary>
             Inserta la información de la empresa
@@ -44,17 +50,26 @@
             Clase relacionado a los accesos del api
             </summary>
         </member>
-        <member name="M:ConsultorioApi.Web.Controllers.CuentasController.#ctor(Microsoft.AspNetCore.Identity.UserManager{ConsultorioApi.Entities.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{ConsultorioApi.Entities.ApplicationUser},Microsoft.Extensions.Configuration.IConfiguration)">
+        <member name="M:ConsultorioApi.Web.Controllers.CuentasController.#ctor(Microsoft.AspNetCore.Identity.UserManager{ConsultorioApi.Entities.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{ConsultorioApi.Entities.ApplicationUser},Microsoft.Extensions.Configuration.IConfiguration,ConsultorioApi.Web.IAlmacenadorDeArchivos,ConsultorioApi.Core.ICuentas)">
             <summary>
             Controlador de Cuentas
             </summary>
             <param name="userManager"></param>
             <param name="signInManager"></param>
             <param name="configuration"></param>
+            <param name="almacenadorDeArchivos"></param>
+            <param name="cuentas"></param>
         </member>
         <member name="M:ConsultorioApi.Web.Controllers.CuentasController.CreateUser(ConsultorioApi.Entities.UserInfo)">
             <summary>
-            Permite Crear un usuario nuevo
+            Permite crear un usuario
+            </summary>
+            <param name="model">Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserInfo"/></param>
+            <returns>Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserToken"/></returns>
+        </member>
+        <member name="M:ConsultorioApi.Web.Controllers.CuentasController.EditarUser(ConsultorioApi.Entities.UserInfo)">
+            <summary>
+            Permite editar un usuario
             </summary>
             <param name="model">Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserInfo"/></param>
             <returns>Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserToken"/></returns>
@@ -73,6 +88,58 @@
             <param name="userFilter">Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserFiltro"/></param>
             <returns>Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserToken"/></returns>
         </member>
+        <member name="M:ConsultorioApi.Web.Controllers.CuentasController.GetUser(System.String)">
+            <summary>
+            Muestra información del usuario
+            </summary>
+            <param name="id">Identificador del Usuario</param>
+            <returns>Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserToken"/></returns>
+        </member>
+        <member name="M:ConsultorioApi.Web.Controllers.CuentasController.RolList">
+            <summary>
+            Muestra el listado de los Roles
+            </summary>
+            <returns>Listado de objetos tipo <see cref="M:ConsultorioApi.Web.Controllers.CuentasController.UserList(ConsultorioApi.Entities.UserFiltro)"/></returns>
+        </member>
+        <member name="T:ConsultorioApi.Web.AlmacenadorArchivosLocal">
+            <summary>
+            Clase AlmacenadorArchivosLocal
+            </summary>
+        </member>
+        <member name="M:ConsultorioApi.Web.AlmacenadorArchivosLocal.#ctor(Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            
+            </summary>
+            <param name="env"></param>
+            <param name="httpContextAccessor"></param>
+        </member>
+        <member name="M:ConsultorioApi.Web.AlmacenadorArchivosLocal.EditarArchivo(System.Byte[],System.String,System.String,System.String)">
+            <summary>
+            Edita el archivo o imagen descargado
+            </summary>
+            <param name="contenido"></param>
+            <param name="extension"></param>
+            <param name="nombreContenedor"></param>
+            <param name="rutaArchivoActual"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ConsultorioApi.Web.AlmacenadorArchivosLocal.EliminarArchivo(System.String,System.String)">
+            <summary>
+            Elimina el archivo
+            </summary>
+            <param name="ruta"></param>
+            <param name="nombreContenedor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ConsultorioApi.Web.AlmacenadorArchivosLocal.GuardarArchivo(System.Byte[],System.String,System.String)">
+            <summary>
+            Guarda el archivo
+            </summary>
+            <param name="contenido"></param>
+            <param name="extension"></param>
+            <param name="nombreContenedor"></param>
+            <returns></returns>
+        </member>
         <member name="T:ConsultorioApi.Web.HttpContextExtensions">
             <summary>
             Extención de la clase HttpContext
@@ -86,6 +153,38 @@
             <param name="context">Objeto tipo <see cref="T:Microsoft.AspNetCore.Http.HttpContext"/></param>
             <param name="queryable">Objeto tipo <see cref="T:System.Linq.IQueryable"/></param>
             <param name="cantidadRegistrosMostrar">cantidad de objetos</param>
+            <returns></returns>
+        </member>
+        <member name="T:ConsultorioApi.Web.IAlmacenadorDeArchivos">
+            <summary>
+            Interface IAlmacenadorDeArchivos
+            </summary>
+        </member>
+        <member name="M:ConsultorioApi.Web.IAlmacenadorDeArchivos.EditarArchivo(System.Byte[],System.String,System.String,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="contenido"></param>
+            <param name="extension"></param>
+            <param name="nombreContenedor"></param>
+            <param name="rutaArchivoActual"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ConsultorioApi.Web.IAlmacenadorDeArchivos.EliminarArchivo(System.String,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="ruta"></param>
+            <param name="nombreContenedor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ConsultorioApi.Web.IAlmacenadorDeArchivos.GuardarArchivo(System.Byte[],System.String,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="contenido"></param>
+            <param name="extension"></param>
+            <param name="nombreContenedor"></param>
             <returns></returns>
         </member>
         <member name="T:ConsultorioApi.Web.QueryableExtensions">
@@ -102,6 +201,29 @@
             <param name="paginacion"></param>
             <returns></returns>
         </member>
+        <member name="T:ConsultorioApi.Program">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:ConsultorioApi.Program.Configuration">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:ConsultorioApi.Program.Main(System.String[])">
+            <summary>
+            
+            </summary>
+            <param name="args"></param>
+        </member>
+        <member name="M:ConsultorioApi.Program.CreateWebHostBuilder(System.String[])">
+            <summary>
+            
+            </summary>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
         <member name="T:ConsultorioApi.Startup">
             <summary>
             Clase Startup
@@ -113,13 +235,18 @@
             </summary>
             <param name="configuration"></param>
         </member>
+        <member name="P:ConsultorioApi.Startup.Configuration">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="M:ConsultorioApi.Startup.ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
             This method gets called by the runtime. Use this method to add services to the container.
             </summary>
             <param name="services"></param>
         </member>
-        <member name="M:ConsultorioApi.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IHostingEnvironment)">
+        <member name="M:ConsultorioApi.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
             <summary>
             This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
             </summary>
