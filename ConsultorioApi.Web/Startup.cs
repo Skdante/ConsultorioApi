@@ -103,6 +103,8 @@ namespace ConsultorioApi
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
             app.UseCors();
+            // Se utiliza para mostrar los archivos que estan en la wwwroot
+            app.UseStaticFiles();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
