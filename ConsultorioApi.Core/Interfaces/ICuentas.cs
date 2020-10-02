@@ -8,6 +8,23 @@ namespace ConsultorioApi.Core
     public interface ICuentas
     {
         /// <summary>
+        /// Guarda el usuario
+        /// </summary>
+        /// <param name="userId">Identificador de Usuario</param>
+        /// <param name="usuario">Objeto tipo <see cref="UserInfo"/></param>
+        /// <returns>Devuelve un objeto tipo <see cref="StatusProcessDB"/></returns>
+        Task<StatusProcessDB> SaveUser(string userId, UserInfo usuario);
+
+        /// <summary>
+        /// Modifica el usuario
+        /// </summary>
+        /// <param name="userId">Identificador de Usuario</param>
+        /// <param name="usuario">Objeto tipo <see cref="UserInfo"/></param>
+        /// <param name="personaId">Identificador de la persona</param>
+        /// <returns>Devuelve un objeto tipo <see cref="StatusProcess"/></returns>
+        Task<StatusProcess> ModificarUsuario(string userId, UserInfo usuario, int personaId);
+
+        /// <summary>
         /// Inserta la relacion de la cuenta con las empresas seleccionadas
         /// </summary>
         /// <param name="userId">Identificador de Usuario</param>
@@ -31,7 +48,7 @@ namespace ConsultorioApi.Core
         /// <param name="applicationUsers">Listado del objeto <see cref="ApplicationUser"/></param>
         /// <param name="userFilter">Modelo tipo <see cref="UserFiltro"/></param>
         /// <returns>Listado del objeto <see cref="UserList"/></returns>
-        List<UserList> FilterUser(IQueryable<ApplicationUser> applicationUsers, UserFiltro userFilter);
+        Task<List<UserList>> FilterUser(IQueryable<ApplicationUser> applicationUsers, UserFiltro userFilter);
 
         /// <summary>
         /// Obtiene información de un usuario

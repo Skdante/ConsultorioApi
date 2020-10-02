@@ -19,6 +19,9 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using Microsoft.Extensions.Hosting;
 using ConsultorioApi.Web;
+using AutoMapper;
+using ConsultorioApi.Core.Interfaces;
+using ConsultorioApi.Core.Bussiness;
 
 namespace ConsultorioApi
 {
@@ -68,6 +71,9 @@ namespace ConsultorioApi
                 .AddDefaultTokenProviders();
 
             services.AddMvc(option => option.EnableEndpointRouting=false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            // Agregamos Automapper
+            services.AddAutoMapper(typeof(Startup));
 
             // CONFIGURACIÓN DEL SERVICIO DE AUTENTICACIÓN JWT
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -130,6 +136,8 @@ namespace ConsultorioApi
             services.AddScoped<ICompania, Compania>();
             services.AddScoped<ICuentasRepositorio, CuentasRepositorio>();
             services.AddScoped<ICuentas, Cuentas>();
+            services.AddScoped<ICatalogoRepositorio, CatalogoRepositorio>();
+            services.AddScoped<ICatalogo, Catalogo>();
             services.AddScoped<IAlmacenadorDeArchivos, AlmacenadorArchivosLocal>();
         }
 

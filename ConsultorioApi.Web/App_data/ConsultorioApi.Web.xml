@@ -4,6 +4,37 @@
         <name>ConsultorioApi.Web</name>
     </assembly>
     <members>
+        <member name="T:ConsultorioApi.Web.Controllers.CatalogoController">
+            <summary>
+            Relacionado a la información general
+            </summary>
+        </member>
+        <member name="M:ConsultorioApi.Web.Controllers.CatalogoController.#ctor(ConsultorioApi.Core.Interfaces.ICatalogo)">
+            <summary>
+            Controlador de Catalogos
+            </summary>
+            <param name="catalogoCore">Interfaz tipo <see cref="T:ConsultorioApi.Core.Interfaces.ICatalogo"/></param>
+        </member>
+        <member name="M:ConsultorioApi.Web.Controllers.CatalogoController.Get(System.Int32)">
+            <summary>
+            Obtenemos un listado de los estados
+            </summary>
+            <param name="PaisId">El identificador del pais</param>
+            <returns>Devuelve un objeto tipo <see cref="T:ConsultorioApi.Entities.Estado"/></returns>
+        </member>
+        <member name="M:ConsultorioApi.Web.Controllers.CatalogoController.Municipíos(System.Int32)">
+            <summary>
+            Obtenemos un listado de los municipios por estado
+            </summary>
+            <param name="EstadoId">El identificador del estado</param>
+            <returns>Devuelve un objeto tipo <see cref="T:ConsultorioApi.Entities.Municipio"/></returns>
+        </member>
+        <member name="M:ConsultorioApi.Web.Controllers.CatalogoController.Especialidades">
+            <summary>
+            Obtenemos un listado de las especialidades del doctor
+            </summary>
+            <returns>Devuelve un listado de especialidades tipo <see cref="T:ConsultorioApi.Entities.Especialidad"/></returns>
+        </member>
         <member name="T:ConsultorioApi.Web.Controllers.CompaniaController">
             <summary>
             Relacionado a la información de la empresa
@@ -50,7 +81,7 @@
             Clase relacionado a los accesos del api
             </summary>
         </member>
-        <member name="M:ConsultorioApi.Web.Controllers.CuentasController.#ctor(Microsoft.AspNetCore.Identity.UserManager{ConsultorioApi.Entities.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{ConsultorioApi.Entities.ApplicationUser},Microsoft.Extensions.Configuration.IConfiguration,ConsultorioApi.Web.IAlmacenadorDeArchivos,ConsultorioApi.Core.ICuentas)">
+        <member name="M:ConsultorioApi.Web.Controllers.CuentasController.#ctor(Microsoft.AspNetCore.Identity.UserManager{ConsultorioApi.Entities.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{ConsultorioApi.Entities.ApplicationUser},Microsoft.Extensions.Configuration.IConfiguration,ConsultorioApi.Web.IAlmacenadorDeArchivos,ConsultorioApi.Core.ICuentas,AutoMapper.IMapper)">
             <summary>
             Controlador de Cuentas
             </summary>
@@ -59,6 +90,7 @@
             <param name="configuration"></param>
             <param name="almacenadorDeArchivos"></param>
             <param name="cuentas"></param>
+            <param name="mapper"></param>
         </member>
         <member name="M:ConsultorioApi.Web.Controllers.CuentasController.CreateUser(ConsultorioApi.Entities.UserInfo)">
             <summary>
@@ -86,14 +118,14 @@
             Muestra el listado de Usuarios de Accesos
             </summary>
             <param name="userFilter">Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserFiltro"/></param>
-            <returns>Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserToken"/></returns>
+            <returns>Objeto de tipo <see cref="M:ConsultorioApi.Web.Controllers.CuentasController.UserList(ConsultorioApi.Entities.UserFiltro)"/></returns>
         </member>
         <member name="M:ConsultorioApi.Web.Controllers.CuentasController.GetUser(System.String)">
             <summary>
             Muestra información del usuario
             </summary>
             <param name="id">Identificador del Usuario</param>
-            <returns>Objeto de tipo <see cref="T:ConsultorioApi.Entities.UserToken"/></returns>
+            <returns>Objeto de tipo <see cref="T:ConsultorioApi.Entities.User"/></returns>
         </member>
         <member name="M:ConsultorioApi.Web.Controllers.CuentasController.RolList">
             <summary>
@@ -139,6 +171,16 @@
             <param name="extension"></param>
             <param name="nombreContenedor"></param>
             <returns></returns>
+        </member>
+        <member name="T:ConsultorioApi.Web.Helper.AutoMapperPerfiles">
+            <summary>
+            Clase AutoMapperPerfiles
+            </summary>
+        </member>
+        <member name="M:ConsultorioApi.Web.Helper.AutoMapperPerfiles.#ctor">
+            <summary>
+            Constructor AutoMapperPerfiles
+            </summary>
         </member>
         <member name="T:ConsultorioApi.Web.HttpContextExtensions">
             <summary>

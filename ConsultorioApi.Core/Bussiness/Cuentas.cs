@@ -1,4 +1,5 @@
-﻿using ConsultorioApi.DataAccess;
+﻿using AutoMapper;
+using ConsultorioApi.DataAccess;
 using ConsultorioApi.Entities;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -8,16 +9,108 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace ConsultorioApi.Core
 {
     public class Cuentas : ICuentas
     {
         private readonly ICuentasRepositorio _cuentasRepositorio;
+        private readonly IMapper _mapper;
 
-        public Cuentas(ICuentasRepositorio cuentasRepositorio) 
+        public Cuentas(ICuentasRepositorio cuentasRepositorio,
+               IMapper mapper) 
         {
             _cuentasRepositorio = cuentasRepositorio;
+            _mapper = mapper;
+        }
+
+        /// <summary>
+        /// Guarda el usuario
+        /// </summary>
+        /// <param name="string">Identificador del usuario</param>
+        /// <param name="usuario">Objeto tipo <see cref="UserInfo"/></param>
+        /// <returns>Devuelve un objeto tipo <see cref="StatusProcessDB"/></returns>
+        public async Task<StatusProcessDB> SaveUser(string userId, UserInfo usuario)
+        {
+            StatusProcessDB statusProcess = new StatusProcessDB();
+            StatusProcessDB status = new StatusProcessDB();
+            Persona persona = new Persona();
+            Doctor doctor = new Doctor();
+
+            try
+            {
+                persona = _mapper.Map(usuario, persona);
+                status = await _cuentasRepositorio.SaveUser(userId, persona);
+
+                if (status.Estatus) 
+                {
+                    doctor.Persona_id = status.IdentificadoConfirmado;
+                    doctor.Descripcion = usuario.Descripcion;
+                    statusProcess = await _cuentasRepositorio.GuardarMedico(doctor);
+
+                    if (statusProcess.Estatus)
+                    {
+                        statusProcess = await _cuentasRepositorio.GuardarUsuarioEspecialidad(statusProcess.IdentificadoConfirmado, usuario.Especialidades);
+                    }
+                }
+
+                await InsertaRelacionEmpresaCuenta(userId, usuario.EmpresasRelacionadas);
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Metodo SaveUser: {@usuario}", usuario, statusProcess);
+                status.IdentificadoConfirmado = 0;
+                status.Estatus = false;
+                status.Mensaje = ex.Message;
+            }
+            return status;
+        }
+
+        /// <summary>
+        /// Modifica el usuario
+        /// </summary>
+        /// <param name="string">Identificador del usuario</param>
+        /// <param name="usuario">Objeto tipo <see cref="UserInfo"/></param>
+        /// <param name="int">Identificador del la persona</param>
+        /// <returns>Devuelve un objeto tipo <see cref="StatusProcess"/></returns>
+        public async Task<StatusProcess> ModificarUsuario(string userId, UserInfo usuario, int personaId)
+        {
+            StatusProcessDB statusProcess = new StatusProcessDB();
+            StatusProcessDB status = new StatusProcessDB();
+            Persona persona = new Persona();
+            Doctor doctor = new Doctor();
+
+            try
+            {
+                persona = _mapper.Map(usuario, persona);
+                persona.Persona_Id = personaId;
+                status = await _cuentasRepositorio.ModificaUsuario(userId, persona);
+
+                if (status.Estatus && usuario.RolId == "Medico")
+                {
+                    doctor.Persona_id = personaId;
+                    doctor.Descripcion = usuario.Descripcion;
+                    statusProcess = await _cuentasRepositorio.GuardarMedico(doctor);
+
+                    if (statusProcess.Estatus)
+                    {
+                        statusProcess = await _cuentasRepositorio.GuardarUsuarioEspecialidad(statusProcess.IdentificadoConfirmado, usuario.Especialidades);
+                    }
+                }
+
+                await InsertaRelacionEmpresaCuenta(userId, usuario.EmpresasRelacionadas);
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Metodo ModificarUsuario: {@usuario}", usuario, statusProcess);
+                status.IdentificadoConfirmado = 0;
+                status.Estatus = false;
+                status.Mensaje = ex.Message;
+            }
+            return status;
         }
 
         /// <summary>
@@ -28,7 +121,7 @@ namespace ConsultorioApi.Core
         /// <returns>Devuelve un objeto tipo <see cref="StatusProcess"/></returns>
         public async Task<StatusProcess> InsertaRelacionEmpresaCuenta(string userId, List<CompaniaLista> empresas) 
         {
-            StatusProcess statusProcess;
+            StatusProcess statusProcess = new StatusProcess();
 
             try
             {
@@ -36,6 +129,7 @@ namespace ConsultorioApi.Core
             }
             catch (Exception ex)
             {
+                Log.Error("Metodo InsertaRelacionEmpresaCuenta: {@empresas}", empresas, statusProcess);
                 statusProcess = new StatusProcess()
                 {
                     Estatus = false,
@@ -93,36 +187,10 @@ namespace ConsultorioApi.Core
         /// <param name="applicationUsers">Listado del objeto <see cref="ApplicationUser"/></param>
         /// <param name="userFilter">Modelo tipo <see cref="UserFiltro"/></param>
         /// <returns>Listado del objeto <see cref="UserList"/></returns>
-        public List<UserList> FilterUser(IQueryable<ApplicationUser> applicationUsers, UserFiltro userFilter)
+        public async Task<List<UserList>> FilterUser(IQueryable<ApplicationUser> applicationUsers, UserFiltro userFilter)
         {
-            List<UserList> userList = new List<UserList>();
-            applicationUsers = applicationUsers.Where(x => x.Name.Contains(userFilter.Name));
-            applicationUsers = applicationUsers.Where(x => x.Email.Contains(userFilter.Email));
-
-            if (userFilter.EstatusId != 2 && userFilter.EstatusId == 1)
-            {
-                applicationUsers = applicationUsers.Where(x => x.IsEnabled == true);
-            }
-            else if (userFilter.EstatusId != 2 && userFilter.EstatusId == 0)
-            {
-                applicationUsers = applicationUsers.Where(x => x.IsEnabled == false);
-            }
-
-            foreach (var user in applicationUsers)
-            {
-                UserList userOnly = new UserList()
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    JobTitle = user.JobTitle,
-                    IsEnabled = user.IsEnabled,
-                    UserName = user.UserName,
-                    PhoneNumber = user.PhoneNumber
-                };
-
-                userList.Add(userOnly);
-            }
-            return userList;
+            List<User> userList = await _cuentasRepositorio.GetUser(userFilter);
+            return _mapper.Map<List<UserList>>(userList);
         }
 
         /// <summary>
@@ -140,6 +208,7 @@ namespace ConsultorioApi.Core
             catch
             {
                 rolLists = new List<RolList>();
+                Log.Error("Metodo GetRol: {@rolLists}", rolLists);
             }
             return rolLists;
         }
@@ -156,11 +225,17 @@ namespace ConsultorioApi.Core
             try
             {
                 user = await _cuentasRepositorio.GetUser(id);
-                user.EmpresasRelacionadas = await _cuentasRepositorio.GetUserEmpresa(id);
+
+                if (user.RolId != "Admin")
+                {
+                    user.EmpresasRelacionadas = await _cuentasRepositorio.GetUserEmpresa(id);
+                    user.Especialidades = await _cuentasRepositorio.GetUserEspecialidad(user.Persona_Id);
+                }
             }
             catch
             {
                 user = new User();
+                Log.Error("Metodo User: {@user}", user);
             }
             return user;
         }

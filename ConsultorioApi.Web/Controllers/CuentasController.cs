@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using ConsultorioApi.Core;
 using ConsultorioApi.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,7 +11,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Swashbuckle.AspNetCore.Annotations;
-
 
 namespace ConsultorioApi.Web.Controllers
 {
@@ -29,6 +29,7 @@ namespace ConsultorioApi.Web.Controllers
         private readonly IConfiguration _configuration;
         private readonly IAlmacenadorDeArchivos _almacenadorDeArchivos;
         private readonly ICuentas _cuentas;
+        private readonly IMapper _mapper;
 
         /// <summary>
         /// Controlador de Cuentas
@@ -38,18 +39,21 @@ namespace ConsultorioApi.Web.Controllers
         /// <param name="configuration"></param>
         /// <param name="almacenadorDeArchivos"></param>
         /// <param name="cuentas"></param>
+        /// <param name="mapper"></param>
         public CuentasController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IConfiguration configuration,
             IAlmacenadorDeArchivos almacenadorDeArchivos,
-            ICuentas cuentas)
+            ICuentas cuentas,
+            IMapper mapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
             _almacenadorDeArchivos = almacenadorDeArchivos;
             _cuentas = cuentas;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -60,31 +64,30 @@ namespace ConsultorioApi.Web.Controllers
         [HttpPost("Crear")]
         public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserInfo model)
         {
+            ApplicationUser applicationUser = new ApplicationUser();
+            Persona persona = new Persona();
+            var user = _mapper.Map(model, applicationUser);
+            persona = _mapper.Map(model, persona);
+
             if (!string.IsNullOrWhiteSpace(model.Imagen))
             {
                 var fotoPersona = Convert.FromBase64String(model.Imagen);
-                model.Imagen = await _almacenadorDeArchivos.GuardarArchivo(fotoPersona, "jpg", "personas");
+                persona.Imagen = await _almacenadorDeArchivos.GuardarArchivo(fotoPersona, "jpg", "personas");
             }
-            var user = new ApplicationUser
-            {
-                UserName = model.Email,
-                Email = model.Email,
-                IsEnabled = model.Estatus,
-                Name = model.Nombre,
-                JobTitle = model.Puesto,
-                PhoneNumber = model.Telefono,
-                Imagen = model.Imagen
-            };
+
             var result = await _userManager.CreateAsync(user, model.Password);
+
             if (result.Succeeded)
             {
                 try
                 {
+                    var userId = await _cuentas.SaveUser(user.Id, model);
                     var usuario = await _userManager.FindByEmailAsync(model.Email);
+                    usuario.Persona_Id = userId.IdentificadoConfirmado;
+                    await _userManager.UpdateAsync(usuario);
                     await _userManager.AddToRoleAsync(usuario, model.RolId);
-                    await _cuentas.InsertaRelacionEmpresaCuenta(user.Id, model.EmpresasRelacionadas);
                     return _cuentas.BuildToken(model, new List<string>(), model.Email, _configuration["JWT:key"]);
-                } 
+                }
                 catch (Exception ex)
                 {
                     return BadRequest("Usuario creado exitosamente, pero se encontro un detalle: " + ex.Message);
@@ -111,17 +114,14 @@ namespace ConsultorioApi.Web.Controllers
                 model.Imagen = await _almacenadorDeArchivos.GuardarArchivo(fotoPersona, "jpg", "personas");
             }
             var usuario = await _userManager.FindByEmailAsync(model.Email);
-            usuario.IsEnabled = model.Estatus;
-            usuario.Name = model.Nombre;
-            usuario.JobTitle = model.Puesto;
-            usuario.PhoneNumber = model.Telefono;
-            usuario.Imagen = model.Imagen == "" ? null : model.Imagen;
-            
+            usuario = _mapper.Map(model, usuario);
+
             var result = await _userManager.UpdateAsync(usuario);
             if (result.Succeeded)
             {
                 try
                 {
+                    var userId = await _cuentas.ModificarUsuario(usuario.Id, model, usuario.Persona_Id);
                     var roles = await _userManager.GetRolesAsync(usuario);
 
                     if (!String.IsNullOrWhiteSpace(model.Password))
@@ -135,19 +135,19 @@ namespace ConsultorioApi.Web.Controllers
                         await _userManager.RemoveFromRolesAsync(usuario, roles);
                         await _userManager.AddToRoleAsync(usuario, model.RolId);
                     }
-                    
-                    await _cuentas.InsertaRelacionEmpresaCuenta(usuario.Id, model.EmpresasRelacionadas);
-                    
+
                     return _cuentas.BuildToken(model, new List<string>(), model.Email, _configuration["JWT:key"]);
                 }
                 catch (Exception ex)
                 {
-                    return BadRequest("Usuario editado exitosamente, pero se encontro un detalle: " + ex.Message);
+                    ModelState.AddModelError(string.Empty, "Usuario editado exitosamente, pero se encontro un detalle: " + ex.Message);
+                    return BadRequest(ModelState);
                 }
             }
             else
             {
-                return BadRequest("Error al editar el usuario");
+                ModelState.AddModelError(string.Empty, "Error al editar el usuario");
+                return BadRequest(ModelState);
             }
 
         }
@@ -161,7 +161,8 @@ namespace ConsultorioApi.Web.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<UserToken>> Login([FromBody] UserAccess userInfo)
         {
-            UserInfo user = new UserInfo() { Email = userInfo.Email, Password = userInfo.Password};
+            UserInfo user = new UserInfo();
+            user = _mapper.Map(userInfo, user);
             var result = await _signInManager.PasswordSignInAsync(userInfo.Email, userInfo.Password, isPersistent: false, lockoutOnFailure: false);
             if (result.Succeeded)
             {
@@ -180,11 +181,11 @@ namespace ConsultorioApi.Web.Controllers
         /// Muestra el listado de Usuarios de Accesos
         /// </summary>
         /// <param name="userFilter">Objeto de tipo <see cref="UserFiltro"/></param>
-        /// <returns>Objeto de tipo <see cref="UserToken"/></returns>
+        /// <returns>Objeto de tipo <see cref="UserList"/></returns>
         [HttpPost("UsersList")]
         public async Task<ActionResult<UserList>> UserList([FromBody] UserFiltro userFilter)
         {
-            var result = _cuentas.FilterUser(_userManager.Users, userFilter);
+            var result = await _cuentas.FilterUser(_userManager.Users, userFilter);
             if (result.Count() > 0)
                 return Ok(result);
             else
@@ -195,10 +196,9 @@ namespace ConsultorioApi.Web.Controllers
         /// Muestra información del usuario
         /// </summary>
         /// <param name="id">Identificador del Usuario</param>
-        /// <returns>Objeto de tipo <see cref="UserToken"/></returns>
+        /// <returns>Objeto de tipo <see cref="User"/></returns>
         [HttpGet("User")]
-        [AllowAnonymous]
-        public async Task<ActionResult<UserList>> GetUser(string id)
+        public async Task<ActionResult<User>> GetUser(string id)
         {
             var result = await _cuentas.User(id);
             return Ok(result);
